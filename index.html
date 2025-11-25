@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculette Frais de dépassement - Version Professionnelle</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background-attachment: fixed;
+            padding: 40px 20px;
+
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(74, 124, 44, 0.15) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(45, 80, 22, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .container {
+            max-width: 1700px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 50px;
+            border-radius: 24px;
+            box-shadow: 0 20px 80px rgba(0, 0, 0, 0.25), 0 10px 40px rgba(45, 80, 22, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            border-bottom: 2px solid #dcedc1;
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 34px;
+            font-weight: 800;
+            padding: 30px;
+            margin-bottom: 45px;
+            background: linear-gradient(135deg, #2d5016 0%, #4a7c2c 50%, #6b9f4f 100%);
+            color: white;
+            border-radius: 16px;
+            letter-spacing: 1.5px;
+            box-shadow: 0 8px 30px rgba(45, 80, 22, 0.4), 0 4px 15px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            text-transform: uppercase;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        h1::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% {
+                transform: translateX(-100%) translateY(-100%) rotate(45deg);
+            }
+            100% {
+                transform: translateX(100%) translateY(100%) rotate(45deg);
+            }
+        }
+        /* Section Données à renseigner */
+        
+        .data-section {
+            margin-bottom: 40px;
+            border: 1px solid #d4e5c9;
+            padding: 30px;
+            border-radius: 16px;
+            background: linear-gradient(145deg, #ffffff 0%, #f9fcf7 50%, #f5f9f0 100%);
+            box-shadow: 0 6px 20px rgba(74, 124, 44, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .data-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(74, 124, 44, 0.15), 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .data-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .data-item label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d5016;
+            letter-spacing: 0.3px;
+        }
+        
+        .data-item input,
+        .data-item select {
+            padding: 14px 18px;
+            border: 2px solid #d4e5c9;
+            font-size: 14px;
+            background: linear-gradient(to bottom, #ffffff 0%, #f5f9f0 100%);
+            border-radius: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'Inter', sans-serif;
+            box-shadow: 0 2px 4px rgba(45, 80, 22, 0.05);
+        }
+        
+        .data-item input:hover,
+        .data-item select:hover {
+            border-color: #b8d4a3;
+            box-shadow: 0 4px 8px rgba(45, 80, 22, 0.1);
+        }
+        
+        .data-item input:focus,
+        .data-item select:focus {
+            outline: none;
+            border-color: #4a7c2c;
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(74, 124, 44, 0.12), 0 4px 12px rgba(45, 80, 22, 0.15);
+            transform: translateY(-1px);
+        }
+        /* Légende */
+        
+        .legend {
+            position: absolute;
+            right: 70px;
+            top: 190px;
+            border: 1px solid #d4e5c9;
+            padding: 24px;
+            background: linear-gradient(135deg, #ffffff 0%, #f9fcf7 100%);
+            width: 340px;
+            border-radius: 16px;
+            box-shadow: 0 10px 35px rgba(45, 80, 22, 0.15), 0 4px 12px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+        }
+        
+        .legend h3 {
+            font-size: 16px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 15px;
+            color: #2d5016;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 13px;
+            color: #5a5a5a;
+        }
+        
+        .legend-color {
+            width: 50px;
+            height: 25px;
+            margin-right: 12px;
+            border: 2px solid #b8d4a3;
+            border-radius: 5px;
+        }
+        
+        .color-green {
+            background: linear-gradient(135deg, #f5f9f0 0%, #e8f3dc 100%);
+        }
+        
+        .color-blue {
+            background: linear-gradient(135deg, #e8f3dc 0%, #d4e5c9 100%);
+        }
+        
+        .color-yellow {
+            background: linear-gradient(135deg, #fff8e6 0%, #ffe8cc 100%);
+        }
+        /* Table Dépassement */
+        
+        .table-container {
+            overflow-x: auto;
+            margin: 35px 0;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(139, 46, 33, 0.1);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            background: white;
+        }
+        
+        table th,
+        table td {
+            border: 1px solid #b8d4a3;
+            padding: 12px 8px;
+            text-align: center;
+        }
+        
+        table th {
+            background: #6b9f4f;
+            color: white;
+            font-weight: 700;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        
+        .header-exercice {
+            background: #6b9f4f;
+            color: white;
+            font-weight: 700;
+        }
+        
+        .row-code {
+            background: #fdfffe;
+        }
+        
+        .row-comm {
+            background: #f9fcf7;
+        }
+        
+        .solde-input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            text-align: center;
+            font-size: 12px;
+            padding: 6px;
+            font-family: 'Inter', sans-serif;
+            transition: background 0.2s ease;
+        }
+        
+        .solde-input:focus {
+            outline: none;
+            background: rgba(169, 68, 56, 0.05);
+        }
+        
+        .cell-calculated {
+            background: linear-gradient(135deg, #e8f3dc 0%, #d4e5c9 50%, #c8ddb8 100%);
+            font-weight: 700;
+            color: #2d5016;
+            box-shadow: inset 0 1px 2px rgba(45, 80, 22, 0.1);
+            transition: all 0.2s ease;
+        }
+        
+        .cell-calculated:hover {
+            background: linear-gradient(135deg, #d4e5c9 0%, #c8ddb8 100%);
+            transform: scale(1.02);
+        }
+        /* Section Résultats */
+        
+        .results-section {
+            margin-top: 40px;
+            border: 1px solid #d4e5c9;
+            padding: 30px;
+            border-radius: 16px;
+            background: linear-gradient(145deg, #ffffff 0%, #f9fcf7 50%, #f5f9f0 100%);
+            box-shadow: 0 6px 20px rgba(74, 124, 44, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            position: relative;
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .result-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .result-item label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d5016;
+            letter-spacing: 0.3px;
+        }
+        
+        .result-value {
+            padding: 14px 20px;
+            border: 2px solid #b8d4a3;
+            background: linear-gradient(135deg, #e8f3dc 0%, #d4e5c9 50%, #c8ddb8 100%);
+            text-align: right;
+            font-weight: 700;
+            font-size: 16px;
+            border-radius: 10px;
+            color: #2d5016;
+            box-shadow: 0 3px 8px rgba(74, 124, 44, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            letter-spacing: 0.5px;
+        }
+        
+        .result-item input {
+            padding: 12px 16px;
+            border: 2px solid #d4e5c9;
+            background: #f5f9f0;
+            text-align: right;
+            font-weight: 700;
+            font-size: 14px;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        .result-item input:focus {
+            outline: none;
+            border-color: #4a7c2c;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(74, 124, 44, 0.1);
+        }
+        /* Section Proposition */
+        
+        .proposition-section {
+            margin-top: 35px;
+            padding: 30px;
+            background: linear-gradient(145deg, #fcffe6 0%, #f5ffd4 50%, #efffcc 100%);
+            border: 1px solid #d4e5c9;
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(74, 124, 44, 0.12), 0 2px 8px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+            position: relative;
+        }
+        
+        .proposition-section h3 {
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #2d5016;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .proposition-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .proposition-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .proposition-item label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d5016;
+            letter-spacing: 0.3px;
+        }
+        
+        .proposition-value {
+            padding: 12px 16px;
+            border: 2px solid #b8d4a3;
+            background: rgba(255, 255, 255, 0.7);
+            text-align: right;
+            font-weight: 700;
+            font-size: 15px;
+            border-radius: 8px;
+            color: #2d5016;
+        }
+        
+        .proposition-input {
+            padding: 12px 16px;
+            border: 2px solid #b8d4a3;
+            background: rgba(255, 255, 255, 0.9);
+            text-align: right;
+            font-size: 14px;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        .proposition-input:focus {
+            outline: none;
+            border-color: #4a7c2c;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(74, 124, 44, 0.1);
+        }
+        /* Responsive */
+        
+        @media (max-width: 1200px) {
+            .legend {
+                position: static;
+                margin: 20px auto 30px;
+                width: 100%;
+                max-width: 400px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            .container {
+                padding: 25px;
+            }
+            h1 {
+                font-size: 24px;
+                padding: 18px;
+            }
+            .data-grid,
+            .results-grid,
+            .proposition-grid {
+                grid-template-columns: 1fr;
+            }
+            table {
+                font-size: 10px;
+            }
+            .solde-input {
+                font-size: 10px;
+            }
+            table th,
+            table td {
+                padding: 8px 4px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Calculette Frais de dépassement</h1>
+
+
+        <!-- Section Données à renseigner -->
+        <div class="data-section">
+            <div class="data-grid">
+                <div class="data-item">
+                    <label>Client</label>
+                    <input type="text" id="client" placeholder="Code Client">
+                </div>
+                <div class="data-item">
+                    <label>Date Commande</label>
+                    <input type="date" id="date-commande" onchange="generateTable(); calculate();">
+                </div>
+                <div class="data-item">
+                    <label>Produit</label>
+                    <select id="produit">
+                        <option value="FER">FER</option>
+                        <option value="CIMENT">CIMENT</option>
+                        <option value="ACIER">ACIER</option>
+                    </select>
+                </div>
+                <div class="data-item">
+                    <label>Quantité</label>
+                    <input type="number" id="qte" value="130000" onchange="calculate()">
+                </div>
+                <div class="data-item">
+                    <label>DPP</label>
+                    <input type="number" id="dpp" value="120" onchange="calculate()">
+                </div>
+            </div>
+        </div>
+
+        <!-- Table Dépassement -->
+        <div class="table-container">
+            <table id="depassement-table">
+                <thead id="table-header">
+                    <!-- Généré dynamiquement -->
+                </thead>
+                <tbody id="table-body">
+                    <!-- Généré dynamiquement -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Section Résultats -->
+        <div class="results-section">
+            <div class="results-grid">
+                <div class="result-item">
+                    <label>PMV arrêté mois</label>
+                    <input type="number" id="pmv-mois" value="9.20" step="0.01" onchange="calculate()">
+                </div>
+                <div class="result-item">
+                    <label>Calcul FF</label>
+                    <div class="result-value" id="calcul-ff">0,00</div>
+                </div>
+                <div class="result-item">
+                    <label>PV à négocié</label>
+                    <div class="result-value" id="pv-negocie">9,20</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Proposition -->
+        <div class="proposition-section">
+            <h3>Proposition de paiement</h3>
+            <div class="proposition-grid">
+                <div class="proposition-item">
+                    <label>Proposition d'échellonnement</label>
+                    <div class="proposition-value" id="proposition-echelonnement">-</div>
+                </div>
+                <div class="proposition-item">
+                    <label>Nombre d'échéance</label>
+                    <input type="number" class="proposition-input" id="nbr-echeance" value="2.00" step="0.01" onchange="calculate()">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let columnDates = [];
+        let soldeValues = {}; // Stocker les valeurs saisies
+
+        // Fonction pour formater les dates en MM/YYYY
+        function formatMonthYear(date) {
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${month}/${year}`;
+        }
+
+        // Fonction pour formater les dates en DD/MM/YYYY
+        function formatDateHeader(date) {
+            const day = '01';
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        // Fonction pour générer le tableau dynamiquement
+        function generateTable() {
+            const dateCommandeStr = document.getElementById('date-commande').value;
+            if (!dateCommandeStr) {
+                return;
+            }
+
+            const dateCommande = new Date(dateCommandeStr);
+
+            // Générer 12 mois avant la date de commande (inclus)
+            columnDates = [];
+            for (let i = 11; i >= 0; i--) {
+                const date = new Date(dateCommande.getFullYear(), dateCommande.getMonth() - i, 1);
+                columnDates.push(date);
+            }
+
+            // Obtenir les années uniques pour le header
+            const years = {};
+            columnDates.forEach(date => {
+                const year = date.getFullYear();
+                if (!years[year]) {
+                    years[year] = 0;
+                }
+                years[year]++;
+            });
+
+            // Générer le header
+            let headerRow1 = '<tr><th colspan="3">Dépassement (Solde MAD)</th>';
+            Object.keys(years).forEach(year => {
+                headerRow1 += `<th class="header-exercice" colspan="${years[year]}">${year}</th>`;
+            });
+            headerRow1 += '</tr>';
+
+            let headerRow2 = '<tr><th>Code Client</th><th>Comm</th><th>Exercice DPR</th>';
+            columnDates.forEach(date => {
+                headerRow2 += `<th>${formatDateHeader(date)}</th>`;
+            });
+            headerRow2 += '</tr>';
+
+            document.getElementById('table-header').innerHTML = headerRow1 + headerRow2;
+
+            // Générer les lignes du body
+            let row1 = '<tr class="row-code"><td rowspan="2"><input type="text" class="solde-input" id="code-client" placeholder="Code"></td>';
+            row1 += '<td rowspan="2"><input type="text" class="solde-input" id="comm" placeholder="Comm"></td><td>DPR</td>';
+
+            columnDates.forEach((date, i) => {
+                const key = formatMonthYear(date);
+                const value = soldeValues[key] || 0;
+                row1 += `<td><input type="number" class="solde-input" id="solde-${i}" value="${value}" onchange="saveSolde(${i}); calculate();"></td>`;
+            });
+            row1 += '</tr>';
+
+            let row2 = '<tr class="row-comm"><td>FF</td>';
+            columnDates.forEach((date, i) => {
+                row2 += `<td class="cell-calculated" id="ff-${i}">0</td>`;
+            });
+            row2 += '</tr>';
+
+            document.getElementById('table-body').innerHTML = row1 + row2;
+
+            // Recalculer après génération
+            calculate();
+        }
+
+        // Sauvegarder les valeurs saisies
+        function saveSolde(index) {
+            const soldeElement = document.getElementById(`solde-${index}`);
+            if (soldeElement && columnDates[index]) {
+                const key = formatMonthYear(columnDates[index]);
+                soldeValues[key] = soldeElement.value;
+            }
+        }
+
+        // Fonction JOURS Excel : différence en jours entre deux dates
+        function JOURS(dateFin, dateDebut) {
+            const MS_PER_DAY = 1000 * 60 * 60 * 24;
+            const utc1 = Date.UTC(dateDebut.getFullYear(), dateDebut.getMonth(), dateDebut.getDate());
+            const utc2 = Date.UTC(dateFin.getFullYear(), dateFin.getMonth(), dateFin.getDate());
+            return Math.floor((utc2 - utc1) / MS_PER_DAY);
+        }
+
+        // Fonction de calcul principale
+        function calculate() {
+            const dateCommandeStr = document.getElementById('date-commande').value;
+            if (!dateCommandeStr) {
+                return;
+            }
+
+            // Régénérer le tableau si les dates ont changé
+            if (columnDates.length === 0) {
+                generateTable();
+                return;
+            }
+
+            const dateCommande = new Date(dateCommandeStr); // B5
+            const dpp = parseFloat(document.getElementById('dpp').value) || 0; // B8
+            const qte = parseFloat(document.getElementById('qte').value) || 0; // B7
+            const pmvMois = parseFloat(document.getElementById('pmv-mois').value) || 0; // B16
+            const nbrEcheance = parseFloat(document.getElementById('nbr-echeance').value) || 1; // B26
+
+            let totalFF = 0;
+
+            // Parcours de chaque colonne (mois)
+            for (let i = 0; i < columnDates.length; i++) {
+                const soldeElement = document.getElementById(`solde-${i}`);
+                const ffElement = document.getElementById(`ff-${i}`);
+
+                const D12 = parseFloat(soldeElement.value) || 0; // Solde (ligne DPR) - L12
+                const D11 = columnDates[i]; // Date de la colonne - L11
+                const B5 = dateCommande; // Date commande - $B$5
+                const B8 = dpp; // DPP - $B$8
+
+                const D23 = 0; // Pas de D23 dans notre structure
+
+                let ff = 0;
+                if (D12 !== 0 && D12 !== "") {
+                    const joursEntreCommandeEtMois = JOURS(B5, D11);
+                    const joursFactures = joursEntreCommandeEtMois - B8;
+
+                    // Calcul FF si joursFactures > 0
+                    if (joursFactures > 0) {
+                        ff = joursFactures * 0.0575 * (D12 - D23) / 365;
+                    }
+                }
+
+                // Afficher avec précision d'arrondi mais garder la valeur exacte pour le total
+                ffElement.textContent = Math.round(ff).toString();
+                totalFF += ff;
+            }
+
+            // Affichage Calcul FF (B19)
+            document.getElementById('calcul-ff').textContent = totalFF.toFixed(2).replace('.', ',');
+
+            // Calcul PV à négocié (B21)
+            // Formule Excel: =SI(B26="";B17+B19/B7;(B19/B26)/B7+B17)
+            let pvNegocie = pmvMois;
+            if (qte > 0) {
+                if (nbrEcheance === 0 || nbrEcheance === null || nbrEcheance === undefined) {
+                    pvNegocie = pmvMois + (totalFF / qte);
+                } else {
+                    pvNegocie = ((totalFF / nbrEcheance) / qte) + pmvMois;
+                }
+            }
+            document.getElementById('pv-negocie').textContent = pvNegocie.toFixed(2).replace('.', ',');
+
+            // Proposition d'échellennement
+            if (nbrEcheance > 0 && totalFF > 0) {
+                const montantParEcheance = totalFF / nbrEcheance;
+                document.getElementById('proposition-echelonnement').textContent = montantParEcheance.toFixed(2).replace('.', ',');
+            } else {
+                document.getElementById('proposition-echelonnement').textContent = '-';
+            }
+        }
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('date-commande').value = '2025-11-19';
+            generateTable();
+            calculate();
+        });
+    </script>
+</body>
+
+</html>
